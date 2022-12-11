@@ -16,7 +16,7 @@ let doWorkPromise = function (job, timer) {
     setTimeout(() => {
       let now = new Date();
       resolve(`完成工作 ${job} at ${now.toISOString()}`);
-      // reject('故意發生錯誤');
+      //   reject('故意發生錯誤');
     }, timer);
   });
 };
