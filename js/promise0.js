@@ -5,12 +5,12 @@
 // Promise 建構式的初始值 -> executor
 // new Promise(executor)
 // executor => 執行者本人也只是一個函式
-// function executor(resolve, reject) {}
+// function executor(resolve, reject) {} -> 固定樣式
 
-//let p = new Promise((resolve, reject) => {});
+// let p = new Promise((resolve, reject) => {}); 可寫成箭頭函示,並用變數接起來
 
 // 2. 非同步工作
-// 把原本要做的非同步工作，搬進去執行者裡面
+// 把原本要做的非同步工作，搬進去執行者(函示)裡面
 // let p = new Promise((resolve, reject) => {
 //   setTimeout(() => {
 //     console.log('done');

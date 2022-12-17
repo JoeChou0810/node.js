@@ -2,7 +2,7 @@
 // 2. 引用 require
 // 3. 去讀官方文件
 const axios = require("axios");
-const fs = require('fs');
+const fs = require('fs/promises');
 
 // Promise 是一個表示非同步運算的最終完成或失敗的物件。
 let p = new Promise((resolve, reject) => {
@@ -23,7 +23,7 @@ let p = new Promise((resolve, reject) => {
 
 (async () => {
   try {
-    let stockNo = await p;
+    let stockNo = await fs.readFile('stock.txt','utf-8');
     let date = "202211";
     let response = await axios.get(`http://54.71.133.152:3000/stocks`, {
       params: {
