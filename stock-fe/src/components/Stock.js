@@ -80,6 +80,10 @@ const Stock = () => {
             type="text"
             id="stockId"
             name="stockId"
+            value={stockId}
+            onChange={(e)=>{
+              setStockId(e.target.value)
+            }}
           />
         </div>
         <div className="mb-8 text-2xl">
@@ -91,6 +95,10 @@ const Stock = () => {
             type="text"
             id="stockName"
             name="stockName"
+            value={stockName}
+            onChange={(e)=>{
+              setStockName(e.target.value)
+            }}
           />
         </div>
         <button

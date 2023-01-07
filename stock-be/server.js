@@ -21,7 +21,6 @@ let pool = mysql2.createPool({
 // 需要加上這個中間件
 app.use(express.json());
 
-
 // 允許跨源存取
 // 預設全部開放
 // 也可以做部分限制，參考 npm cors 的文件
@@ -78,22 +77,64 @@ app.get("/api/stocks", async (request, response, next) => {
 
 app.get("/api/stocks/:stockId", async (request, response, next) => {
   console.log("/api/stocks/:stockId => ", request.params.stockId);
-  // 會用 prepared statement 的方式來避免發生 sql injection
 
-  let [data] = await pool.query("SELECT * FROM stock_prices WHERE stock_id=?", [
-    request.params.stockId,
-  ]);
-  response.json(data);
+  // 分頁
+
+  // 從前端拿到目前是要第幾頁
+  // 通常放在 query string -> req.query.page
+  // /api/stocks/:stockId?page=2
+  // /api/stocks/:stockId -> 如果page沒有寫 就預設第一頁
+  // 如果沒有 page 這個 query string 就預設為 1
+  const page = request.query.page || 1;
+
+  // 總筆數？
+  let [results] = await pool.execute(
+    "SELECT COUNT(*) AS total FROM stock_prices WHERE stock_id=?",
+    [request.params.stockId]
+  );
+  console.log("GET /stocks/details -> count:", results[0].total);
+  const total = results[0].total;
+
+  // 共幾頁
+  const perPage = 5;
+  const totalPage = Math.ceil(total / perPage);
+
+  // 計算 offset, limit (一頁有幾筆)
+  const limit = perPage;
+  const offset = perPage * (page - 1);
+
+  // 根據 offset, limit 去取得資料
+  let [data] = await pool.execute('SELECT * FROM stock_prices WHERE stock_id=? ORDER BY date LIMIT ? OFFSET ?', [request.params.stockId, limit, offset]);
+
+  // 把資料回覆給前端
+  response.json({
+    pagination:{
+      total,
+      perPage,
+      totalPage,
+      page,
+    },
+    data,
+  })
+
+  // 會用 prepared statement 的方式來避免發生 sql injection
+  // let [data] = await pool.query("SELECT * FROM stock_prices WHERE stock_id=?", [
+  //   request.params.stockId,
+  // ]);
+  // response.json(data);
 });
 
-app.post('/api/stocks/' , (request , response)=>{
-  console.log('/api/stocks/', request.body);
+app.post("/api/stocks/", async (request, response) => {
+  console.log("/api/stocks/", request.body);
   // req.body.stockId, req.body.stockName
   // TODO: 完成 insert
-  // let results = await pool.query("");
-  // console.log(results);
-  response.json({})
-})
+  let results = await pool.query(
+    "INSERT INTO stocks (id, name) VALUES (? , ?);",
+    [request.body.stockId, request.body.stockName]
+  );
+  console.log("POST stocks results", results);
+  response.json({});
+});
 
 app.get("/test", (request, response) => {
   console.log("this is test index");
